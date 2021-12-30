@@ -1,0 +1,22 @@
+<resources>
+    <string name="app_name">TorontoDating</string>
+
+    <string name="register">REGISTER</string>
+    <string name="login_email_hint">Email</string>
+    <string name="login_password_hint">Password</string>
+    <string name="signup_login_hint">Already have an account? Sign In</string>
+    <string name="login_signup_hint">Don\'t have an account? Sign Up</string>
+    <string name="signup_addresshint">Address</string>
+    <string name="title_activity_add_view">AddView</string>
+    <string name="tab_text_1">Post Ad</string>
+    <string name="tab_text_2">Your Ads</string>
+    <string name="tab_textcustomer_1">Add Customers</string>
+    <string name="tab_textcustomer_2">Your Customers</string>
+
+    <string name="titleSeller">Title</string>
+    <string name="priceSeller">Price</string>
+    <string name="addressSeller">Address</string>
+    <string name="descSeller">Description</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+</resources>
