@@ -77,7 +77,6 @@ AuthenticationPresenterLayer registerPresenterLayer;
     Uri downlduri;
     ProgressDialog progressDialog ;
     StorageReference storageReference;
-    User user;
     DatabaseReference dfUpdate;
     FirebaseDatabase database;
     String[] ITEMS = {"Male", "Female"};
@@ -201,7 +200,6 @@ AuthenticationPresenterLayer registerPresenterLayer;
             imageView.setImageURI(FilePathUri);
 
             try {
-                // Getting selected image into Bitmap.
                 Bitmap bitmap = MediaStore.Images.Media.getBitmap(getApplication().getApplicationContext().getContentResolver(), FilePathUri);
                 // Setting up bitmap selected image into ImageView.
                 //    ivUploadimg.setImageBitmap(bitmap);
@@ -319,9 +317,7 @@ AuthenticationPresenterLayer registerPresenterLayer;
     }
 
     private void writeNewUser(String name, String email, String password, String imageURL, String status, String id, String username, String search, String age, String gender) {
-
         User user = new User(name, email, password, imageURL, status, id, username, search, age, gender);
-        //  String key = mDatabase.getDatabase().getReference().push().getKey();
         String uid = firebaseAuth.getCurrentUser().getUid();
         mDatabase.child("users").child(uid).setValue(user);
     }

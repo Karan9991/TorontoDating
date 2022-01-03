@@ -37,21 +37,15 @@ import com.example.torontodating.Validate;
 import java.util.Map;
 
 public class SignIn extends AppCompatActivity implements Validate {
-EditText etEmailLogin, etPasswordLogin;
-Button btnLogin;
-TextView tvSignUp, tvForgotPassword;
-private ProgressBar progressBar;
 
-SharedPreferences sharedPref;
-    SharedPreferences.Editor editor;
-     Boolean isValid;
-
+    EditText etEmailLogin, etPasswordLogin;
+    Button btnLogin;
+    TextView tvSignUp, tvForgotPassword;
+    private ProgressBar progressBar;
+    Boolean isValid;
     AuthenticationPresenterLayer authenticationPresenterLayer;
     FirebaseAuth firebaseAuth;
     FirebaseUser firebaseUser;
-    DatabaseReference mFirebasedataRefSell;
-    DatabaseReference mFirebasedataRefCust;
-    Query querySeller, queryCustomer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,8 +59,6 @@ SharedPreferences sharedPref;
         tvSignUp = findViewById(R.id.tvSignUp);
         tvForgotPassword = findViewById(R.id.tvForgotPassword);
         progressBar = findViewById(R.id.progressBar_cyclicSignin);
-        sharedPref = getSharedPreferences("UserType", Context.MODE_PRIVATE);
-        editor =  sharedPref.edit();
         etEmailLogin.setText("999karansandhu@gmail.com");
         etPasswordLogin.setText("Karan6$");
 
@@ -77,9 +69,6 @@ SharedPreferences sharedPref;
         isValid = false;
         firebaseAuth = FirebaseAuth.getInstance();
         firebaseUser = firebaseAuth.getCurrentUser();
-        mFirebasedataRefSell  = FirebaseDatabase.getInstance().getReference();
-        mFirebasedataRefCust  = FirebaseDatabase.getInstance().getReference();
-
 
 //If User already signed in
                 if (firebaseUser!=null&&firebaseAuth.getCurrentUser().isEmailVerified()){

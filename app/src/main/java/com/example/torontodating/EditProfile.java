@@ -53,12 +53,12 @@ public class EditProfile extends AppCompatActivity implements ValueEventListener
 
 //UI
     ImageView imgRecipe,imgView,imgLeftArrow;
-    EditText etTitle, etPrice, etDesc;
+    EditText etPrice, etDesc;
     User user;
     Button btnEdit,btnUpdate, btnDeleteAccount;
-    AlertDialog.Builder builder, builder2;
+    AlertDialog.Builder builder;
 
-    String title,key;
+    String key;
     String Storage_Path = "Recipe/";
     Uri FilePathUri;
     int Image_Request_Code = 7;
@@ -69,7 +69,7 @@ public class EditProfile extends AppCompatActivity implements ValueEventListener
     //Firebase
     FirebaseDatabase database = FirebaseDatabase.getInstance();
     FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
-    DatabaseReference df,dfUpdate,dfImgUpdate;
+    DatabaseReference df,dfUpdate;
     StorageReference storageReference;
 
     @Override
@@ -96,8 +96,7 @@ public class EditProfile extends AppCompatActivity implements ValueEventListener
         storageReference = FirebaseStorage.getInstance().getReference();
         builder = new AlertDialog.Builder(this);
 
-        //  etTitle.setEnabled(false);
-         gettingIntent();
+        gettingIntent();
 
          imgLeftArrow.setOnClickListener(new View.OnClickListener() {
              @Override
@@ -110,7 +109,6 @@ public class EditProfile extends AppCompatActivity implements ValueEventListener
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent();
-                // Setting intent type as image to select image from phone storage.
                 intent.setType("image/*");
                 intent.setAction(Intent.ACTION_GET_CONTENT);
                 startActivityForResult(Intent.createChooser(intent, "Please Select Image"), Image_Request_Code);
@@ -131,7 +129,6 @@ public class EditProfile extends AppCompatActivity implements ValueEventListener
                 if (validations()) {
                     UploadImageFileToFirebaseStorage(etDesc.getText().toString(), etPrice.getText().toString());
                 }
-               // writeNewPost(etDesc.getText().toString(), editRecipe.getImageURL(), etPrice.getText().toString());
             }
         });
 
@@ -148,8 +145,6 @@ public class EditProfile extends AppCompatActivity implements ValueEventListener
            if (dataSnapshot!=null) {
                user = dataSnapshot.getValue(User.class);
                if (user != null) {
-                   Log.e("ccc", " " + user.getName() + " " + user.getAge());
-                   Log.e("ddd", " " + dataSnapshot.getValue().toString());
                    etPrice.setText(user.getName());
                    etDesc.setText(user.getAge());
                    Glide.with(getApplicationContext()).load(user.getImageURL()).into(imgRecipe);
@@ -157,10 +152,7 @@ public class EditProfile extends AppCompatActivity implements ValueEventListener
            }
     }
     private void writeNewPost(String desc, String imageURL, String price) {
-        // Create new post at /user-posts/$userid/$postid and at /posts/$postid simultaneously
         user = new User(price,user.getEmail(), user.getPassword(), imageURL, user.getStatus(), user.getId(), user.getUsername(), user.getSearch(),desc, user.getGender());
-
-       // user = new User(price,desc, imageURL);
         Map<String, Object> postValues = user.toMap();
         Map<String, Object> childUpdates = new HashMap<>();
         childUpdates.put(firebaseAuth.getCurrentUser().getUid(),postValues);
@@ -168,11 +160,8 @@ public class EditProfile extends AppCompatActivity implements ValueEventListener
         Toast.makeText(EditProfile.this, "Profile Updated", Toast.LENGTH_LONG).show();
     }
     private void gettingIntent(){
-       // title = getIntent().getStringExtra("etTitle");
-       // if (title!=null) {
             df = database.getReference().child("users").child(firebaseAuth.getCurrentUser().getUid());
             df.addValueEventListener(this);
-      //  }
     }
 
     @Override
@@ -292,30 +281,6 @@ public class EditProfile extends AppCompatActivity implements ValueEventListener
         return isValid;
     }
 
-    private void deleteAccount(){
-            df.child("users").child(firebaseAuth.getCurrentUser().getUid()).removeValue();
-            FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-            user.delete()
-                    .addOnCompleteListener(new OnCompleteListener<Void>() {
-                        @Override
-                        public void onComplete(@NonNull Task<Void> task) {
-                            if (task.isSuccessful()) {
-                                Log.e("ok","okkk1");
-                                Toast.makeText(getApplicationContext(), "Account Deleted", Toast.LENGTH_LONG).show();
-                                Intent i = new Intent(getApplicationContext(), SignIn.class);
-                                i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                                startActivity(i);
-                            }
-                        // onCancelled();
-                        }
-                    }).addOnFailureListener(new OnFailureListener() {
-                @Override
-                public void onFailure(@NonNull Exception e) {
-                    Log.e("ee"," "+e.getMessage());
-                }
-            });
-    }
-
     private void alertDialogdelete(){
         builder.setTitle("Are You Sure?");
         builder.setMessage("Your All Data Will be Deleted Permanently")
@@ -348,14 +313,11 @@ public class EditProfile extends AppCompatActivity implements ValueEventListener
                         userr.delete().addOnCompleteListener(new OnCompleteListener < Void > () {
                             @Override
                             public void onComplete (@NonNull Task < Void > task) {
-//                                Log.e("ok","okkk2"+user.getEmail()+firebaseAuth.getCurrentUser().getUid());
-
                                 //user deleted successfully
                                 Toast.makeText(getApplicationContext(), "Account Deleted", Toast.LENGTH_LONG).show();
                                 Intent i = new Intent(getApplicationContext(), Register.class);
                                 i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                                 startActivity(i);
-                               // startActivity(new Intent(EditProfile.this, Register.class));
                             }
                         });
                     }

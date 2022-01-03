@@ -193,12 +193,14 @@ private void readCurrentUser() {
                 mUsers.clear();
                 for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
                     com.example.torontodating.authentication.Model.User user = snapshot.getValue(com.example.torontodating.authentication.Model.User.class);
-                    Log.i("CurrentUser", "vv"+user.getGender());
+                   // Log.i("CurrentUser", "vv"+user.getGender());
+                    if (user!=null && firebaseUser!=null) {
                         if (user.getId().equals(firebaseUser.getUid())) {
                             gender = user.getGender();
 
                             // mUsers.add(user);
                         }
+                    }
                    // mUsers.add(user);
 
                 }

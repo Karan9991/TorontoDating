@@ -79,26 +79,6 @@ AuthenticationPresenterLayer presenterLayer;
             }
         });
 
-//        btnForgotPassword.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                if (validations()){
-//                    firebaseAuth.sendPasswordResetEmail(etForgotPassword.getText().toString()).addOnCompleteListener(new OnCompleteListener<Void>() {
-//                        @Override
-//                        public void onComplete(@NonNull Task<Void> task) {
-//                            if (task.isSuccessful()) {
-//                                etForgotPassword.setError(null);
-//                                Toast.makeText(ForgotPassword.this, "Password Link sent to your E-Mail, Please check your E-Mail", Toast.LENGTH_LONG).show();
-//                            } else {
-//                                Toast.makeText(ForgotPassword.this, task.getException().getMessage(), Toast.LENGTH_LONG).show();
-//                            }
-//                        }
-//                    });
-//
-//                }
-//
-//            }
-//        });
     }
 
     private void sendPasswordLink(){
@@ -113,21 +93,6 @@ AuthenticationPresenterLayer presenterLayer;
                             }
                         }
                     });
-    }
-    private boolean validations(){
-        if (TextUtils.isEmpty(etForgotPassword.getText())) {
-            etForgotPassword.setError("Enter an E-Mail Address");
-            isValid = false;
-        }
-       else if (!Patterns.EMAIL_ADDRESS.matcher(etForgotPassword.getText().toString().trim()).matches()){
-            etForgotPassword.setError( "Enter a Valid E-mail Address");
-            isValid = false;
-        }
-
-        else {
-            isValid = true;
-        }
-        return isValid;
     }
     
     @Override

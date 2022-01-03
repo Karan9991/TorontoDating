@@ -67,17 +67,6 @@ public class User {
         this.age = age;
     }
 
-    //    public User(String name, String mobile, String email, String password, String address, String userType, String imageURL, String status, String id) {
-//        this.name = name;
-//        this.mobile = mobile;
-//        this.email = email;
-//        this.password = password;
-//        this.address = address;
-//        this.userType = userType;
-//        this.imageURL = imageURL;
-//        this.status = status;
-//        this.id = id;
-//    }
     public User(String name, String mobile, String email, String password, String address, String userType, String imageURL, String status, String id, String username, String search) {
         this.name = name;
         this.mobile = mobile;

@@ -197,6 +197,11 @@ public boolean onOptionsItemSelected(MenuItem item) {
             HashMap<String, Object> map = new HashMap<>();
             map.put("status", status);
             reference.updateChildren(map);
+            Log.e("Warning","status");
+        }
+        else {
+            Log.e("Warning","status else");
+
         }
     }
 

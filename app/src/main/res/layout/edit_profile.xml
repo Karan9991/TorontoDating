@@ -202,13 +202,13 @@ android:background="@drawable/login_button_bk"
             <Button
                 android:id="@+id/btnUpdate"
                 style="@style/loginButton"
-                android:visibility="gone"
                 android:layout_alignParentStart="true"
                 android:layout_alignParentTop="true"
                 android:layout_alignParentEnd="true"
                 android:layout_marginStart="100dp"
                 android:layout_marginTop="580dp"
                 android:layout_marginEnd="95dp"
+                android:visibility="gone"
                 android:elevation="7dp"
                 android:text="Update Profile" />
             <Button
@@ -217,11 +217,10 @@ android:background="@drawable/login_button_bk"
                 android:layout_alignParentStart="true"
                 android:layout_alignParentEnd="true"
                 android:layout_alignParentTop="true"
-                android:layout_gravity="center"
+                android:layout_marginStart="100dp"
                 android:visibility="gone"
-                android:layout_marginStart="112dp"
                 android:layout_marginTop="690dp"
-                android:layout_marginEnd="117dp"
+                android:layout_marginEnd="95dp"
                 android:elevation="7dp"
                 android:text="Delete Account" />
         </RelativeLayout>
