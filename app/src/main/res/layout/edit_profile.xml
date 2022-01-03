@@ -211,7 +211,19 @@ android:background="@drawable/login_button_bk"
                 android:layout_marginEnd="95dp"
                 android:elevation="7dp"
                 android:text="Update Profile" />
-
+            <Button
+                android:id="@+id/btnDeleteProfile"
+                style="@style/deleteProfileButton"
+                android:layout_alignParentStart="true"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentTop="true"
+                android:layout_gravity="center"
+                android:visibility="gone"
+                android:layout_marginStart="112dp"
+                android:layout_marginTop="690dp"
+                android:layout_marginEnd="117dp"
+                android:elevation="7dp"
+                android:text="Delete Account" />
         </RelativeLayout>
     </ScrollView>
 

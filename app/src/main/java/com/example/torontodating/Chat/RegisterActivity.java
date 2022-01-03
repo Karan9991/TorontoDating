@@ -1,10 +1,14 @@
 package com.example.torontodating.Chat;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -23,13 +27,17 @@ import com.example.torontodating.R;
 
 import java.util.HashMap;
 
+import fr.ganfra.materialspinner.MaterialSpinner;
+
 public class RegisterActivity extends AppCompatActivity {
 
     MaterialEditText username, email, password;
     Button btn_register;
-
+    Spinner spinner;
     FirebaseAuth auth;
     DatabaseReference reference;
+    String[] ITEMS = {"Male", "Female"};
+    Boolean isValid, isSpinnerValid;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,6 +53,11 @@ public class RegisterActivity extends AppCompatActivity {
         email = findViewById(R.id.email);
         password = findViewById(R.id.password);
         btn_register = findViewById(R.id.btn_register);
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, ITEMS);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinner = (MaterialSpinner) findViewById(R.id.spinner);
+        spinner.setAdapter(adapter);
+        isSpinnerValid = false;
 
         auth = FirebaseAuth.getInstance();
 
@@ -102,5 +115,21 @@ public class RegisterActivity extends AppCompatActivity {
                         }
                     }
                 });
+    }
+    public boolean setSpinnerError(Spinner spinner, String error){
+        int selectedItemOfMySpinner = spinner.getSelectedItemPosition();
+        View selectedView = spinner.getSelectedView();
+        if (selectedItemOfMySpinner == 0) {
+            if (selectedView != null && selectedView instanceof TextView) {
+                TextView selectedTextView = (TextView) selectedView;
+                selectedTextView.setText(error); // actual error message
+                selectedTextView.setTextColor(Color.RED);
+            }
+            isSpinnerValid = false;
+        }
+        else {
+            isSpinnerValid = true;
+        }
+        return isSpinnerValid;
     }
 }

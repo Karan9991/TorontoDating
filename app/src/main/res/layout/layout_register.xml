@@ -80,7 +80,25 @@
                 android:maxLength="35"
                 android:inputType="textPassword"/>
         </com.google.android.material.textfield.TextInputLayout>
+        <fr.ganfra.materialspinner.MaterialSpinner
+            style="@style/spinnerUserType"
+            android:id="@+id/spinner"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:ms_multiline="false"
+            app:ms_enableFloatingLabel="true"
+            app:ms_enableErrorLabel="false"
+            app:ms_hint="Gender"
+            app:ms_hint_color="@color/colorAccent"
+            app:ms_hintTextSize="12sp"
 
+            app:ms_arrowSize="16dp"
+            app:ms_alignLabels="false"
+            app:ms_floatingLabelText="Gender"
+            app:ms_floatingLabelColor="@color/colorAccent"
+            app:ms_baseColor="@color/colorAccent"
+            app:ms_hintColor="@color/colorPrimary"
+            app:ms_arrowColor="@color/colorAccent"/>
         <Button
             style="@style/loginButton"
             android:id="@+id/btnRegister"

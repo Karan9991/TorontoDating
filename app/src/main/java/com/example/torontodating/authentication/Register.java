@@ -80,13 +80,14 @@ AuthenticationPresenterLayer registerPresenterLayer;
     User user;
     DatabaseReference dfUpdate;
     FirebaseDatabase database;
+    String[] ITEMS = {"Male", "Female"};
+    Boolean isValid, isSpinnerValid;
+    Spinner spinner;
 
     //Firebase
     private DatabaseReference mDatabase;
     private FirebaseAuth firebaseAuth;
 
-    String[] ITEMS = {"Customer", "Seller"};
-    Boolean isValid, isSpinnerValid;
     private static final Pattern PASSWORD_PATTERN =
             Pattern.compile("^" +
                     "(?=.*[0-9])" +         //at least 1 digit
@@ -119,7 +120,6 @@ AuthenticationPresenterLayer registerPresenterLayer;
         register = this;
 
         isValid = false;
-        isSpinnerValid = false;
         database = FirebaseDatabase.getInstance();
         mDatabase = FirebaseDatabase.getInstance().getReference();
         firebaseAuth = FirebaseAuth.getInstance();
@@ -127,6 +127,9 @@ AuthenticationPresenterLayer registerPresenterLayer;
 
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, ITEMS);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinner = (MaterialSpinner) findViewById(R.id.spinner);
+        spinner.setAdapter(adapter);
+        isSpinnerValid = false;
 
         progressBar.setVisibility(View.GONE);
         progressBar.getIndeterminateDrawable().setColorFilter(getResources().getColor(R.color.colorAccent), PorterDuff.Mode.MULTIPLY);
@@ -145,7 +148,7 @@ AuthenticationPresenterLayer registerPresenterLayer;
         btnRegister.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-            if (validations()) {
+            if (validations() && setSpinnerError(spinner, "Please select Gender")) {
                 UploadImageFileToFirebaseStorage(etName.getText().toString(),etAge.getText().toString(),etEmail.getText().toString(),etPassword.getText().toString());
                 }
             }
@@ -248,7 +251,7 @@ AuthenticationPresenterLayer registerPresenterLayer;
                                                             //user = new User(name, age, email, pass, downlduri.toString());
                                                             FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
                                                             String userid = firebaseUser.getUid();
-                                                            writeNewUser(etName.getText().toString(), etEmail.getText().toString(), etPassword.getText().toString(),  downlduri.toString(), "offline", firebaseAuth.getCurrentUser().getUid(), etEmail.getText().toString(), etEmail.getText().toString().toLowerCase(), etAge.getText().toString());
+                                                            writeNewUser(etName.getText().toString(), etEmail.getText().toString(), etPassword.getText().toString(),  downlduri.toString(), "offline", firebaseAuth.getCurrentUser().getUid(), etEmail.getText().toString(), etEmail.getText().toString().toLowerCase(), etAge.getText().toString(), spinner.getSelectedItem().toString());
 
 
                                                             //mDatabase.child("users").child(firebaseAuth.getCurrentUser().getUid()).setValue(user);
@@ -259,6 +262,7 @@ AuthenticationPresenterLayer registerPresenterLayer;
                                                             etAge.setText("");
                                                             etEmail.setText("");
                                                             etPassword.setText("");
+                                                            spinner.setSelection(0);
 
                                                         } else {
                                                             progressDialog.dismiss();
@@ -314,11 +318,27 @@ AuthenticationPresenterLayer registerPresenterLayer;
         MultiDex.install(this);
     }
 
-    private void writeNewUser(String name, String email, String password, String imageURL, String status, String id, String username, String search, String age) {
+    private void writeNewUser(String name, String email, String password, String imageURL, String status, String id, String username, String search, String age, String gender) {
 
-        User user = new User(name, email, password, imageURL, status, id, username, search, age);
+        User user = new User(name, email, password, imageURL, status, id, username, search, age, gender);
         //  String key = mDatabase.getDatabase().getReference().push().getKey();
         String uid = firebaseAuth.getCurrentUser().getUid();
         mDatabase.child("users").child(uid).setValue(user);
+    }
+    public boolean setSpinnerError(Spinner spinner, String error){
+        int selectedItemOfMySpinner = spinner.getSelectedItemPosition();
+        View selectedView = spinner.getSelectedView();
+        if (selectedItemOfMySpinner == 0) {
+            if (selectedView != null && selectedView instanceof TextView) {
+                TextView selectedTextView = (TextView) selectedView;
+                selectedTextView.setText(error); // actual error message
+                selectedTextView.setTextColor(Color.RED);
+            }
+            isSpinnerValid = false;
+        }
+        else {
+            isSpinnerValid = true;
+        }
+        return isSpinnerValid;
     }
 }

@@ -2,6 +2,7 @@ package com.example.torontodating;
 
 import android.app.ProgressDialog;
 import android.content.ContentResolver;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
@@ -18,14 +19,22 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.bumptech.glide.Glide;
 import com.example.torontodating.Chat.MainActivity;
 import com.example.torontodating.authentication.Model.User;
+import com.example.torontodating.authentication.Register;
+import com.example.torontodating.authentication.SignIn;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthCredential;
+import com.google.firebase.auth.EmailAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -46,7 +55,8 @@ public class EditProfile extends AppCompatActivity implements ValueEventListener
     ImageView imgRecipe,imgView,imgLeftArrow;
     EditText etTitle, etPrice, etDesc;
     User user;
-    Button btnEdit,btnUpdate;
+    Button btnEdit,btnUpdate, btnDeleteAccount;
+    AlertDialog.Builder builder, builder2;
 
     String title,key;
     String Storage_Path = "Recipe/";
@@ -75,6 +85,7 @@ public class EditProfile extends AppCompatActivity implements ValueEventListener
         btnUpdate = findViewById(R.id.btnUpdate);
         imgView = findViewById(R.id.imgView);
         imgLeftArrow = findViewById(R.id.imgLeftArrow);
+        btnDeleteAccount = findViewById(R.id.btnDeleteProfile);
 
         user = new User();
          key = firebaseAuth.getCurrentUser().getUid();
@@ -83,8 +94,9 @@ public class EditProfile extends AppCompatActivity implements ValueEventListener
 
         dfUpdate = database.getReference().child("users");
         storageReference = FirebaseStorage.getInstance().getReference();
+        builder = new AlertDialog.Builder(this);
 
-       //  etTitle.setEnabled(false);
+        //  etTitle.setEnabled(false);
          gettingIntent();
 
          imgLeftArrow.setOnClickListener(new View.OnClickListener() {
@@ -110,6 +122,7 @@ public class EditProfile extends AppCompatActivity implements ValueEventListener
             public void onClick(View view) {
                 btnUpdate.setVisibility(View.VISIBLE);
                 imgView.setVisibility(View.VISIBLE);
+                btnDeleteAccount.setVisibility(View.VISIBLE);
             }
         });
         btnUpdate.setOnClickListener(new View.OnClickListener() {
@@ -121,22 +134,31 @@ public class EditProfile extends AppCompatActivity implements ValueEventListener
                // writeNewPost(etDesc.getText().toString(), editRecipe.getImageURL(), etPrice.getText().toString());
             }
         });
+
+        btnDeleteAccount.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                alertDialogdelete();
+            }
+        });
     }
 
     @Override
     public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-           if (dataSnapshot!=null){
+           if (dataSnapshot!=null) {
                user = dataSnapshot.getValue(User.class);
-               Log.e("ccc", " "+user.getName()+" "+user.getAge());
-               Log.e("ddd", " "+dataSnapshot.getValue().toString());
-               etPrice.setText(user.getName());
-               etDesc.setText(user.getAge());
-               Glide.with(EditProfile.this).load(user.getImageURL()).into(imgRecipe);
+               if (user != null) {
+                   Log.e("ccc", " " + user.getName() + " " + user.getAge());
+                   Log.e("ddd", " " + dataSnapshot.getValue().toString());
+                   etPrice.setText(user.getName());
+                   etDesc.setText(user.getAge());
+                   Glide.with(getApplicationContext()).load(user.getImageURL()).into(imgRecipe);
+               }
            }
     }
     private void writeNewPost(String desc, String imageURL, String price) {
         // Create new post at /user-posts/$userid/$postid and at /posts/$postid simultaneously
-        user = new User(price,user.getEmail(), user.getPassword(), imageURL, user.getStatus(), user.getId(), user.getUsername(), user.getSearch(),desc);
+        user = new User(price,user.getEmail(), user.getPassword(), imageURL, user.getStatus(), user.getId(), user.getUsername(), user.getSearch(),desc, user.getGender());
 
        // user = new User(price,desc, imageURL);
         Map<String, Object> postValues = user.toMap();
@@ -206,7 +228,7 @@ public class EditProfile extends AppCompatActivity implements ValueEventListener
                                 public void onSuccess(Uri uri) {
                                     downlduri = uri;
                                //     imageUploadInfo = new AddRecipe(downlduri.toString(),etSellerPrice.getText().toString(), etSellerDesc.getText().toString());
-                                    user = new User(price,user.getEmail(), user.getPassword(), downlduri.toString(), user.getStatus(), user.getId(), user.getUsername(), user.getSearch(),desc);
+                                    user = new User(price,user.getEmail(), user.getPassword(), downlduri.toString(), user.getStatus(), user.getId(), user.getUsername(), user.getSearch(),desc, user.getGender());
                                     Map<String, Object> postValues = user.toMap();
 
                                     Map<String, Object> childUpdates = new HashMap<>();
@@ -242,7 +264,7 @@ public class EditProfile extends AppCompatActivity implements ValueEventListener
                     });
         }
         else {
-            user = new User(price,user.getEmail(), user.getPassword(), user.getImageURL(), user.getStatus(), user.getId(), user.getUsername(), user.getSearch(),desc);
+            user = new User(price,user.getEmail(), user.getPassword(), user.getImageURL(), user.getStatus(), user.getId(), user.getUsername(), user.getSearch(),desc,user.getGender());
 
             writeNewPost(etDesc.getText().toString(), user.getImageURL(), etPrice.getText().toString());
             //Toast.makeText(EditProfile.this, "Please Select Image", Toast.LENGTH_LONG).show();
@@ -257,11 +279,11 @@ public class EditProfile extends AppCompatActivity implements ValueEventListener
     @Override
     public boolean validations() {
          if (TextUtils.isEmpty(etPrice.getText())) {
-            etPrice.setError("Price is required!");
+            etPrice.setError("Name is required!");
             isValid = false;
         }
         else if (TextUtils.isEmpty(etDesc.getText())) {
-            etDesc.setError("Description is required!");
+            etDesc.setError("Age is required!");
             isValid = false;
         }
         else {
@@ -269,4 +291,79 @@ public class EditProfile extends AppCompatActivity implements ValueEventListener
         }
         return isValid;
     }
+
+    private void deleteAccount(){
+            df.child("users").child(firebaseAuth.getCurrentUser().getUid()).removeValue();
+            FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+            user.delete()
+                    .addOnCompleteListener(new OnCompleteListener<Void>() {
+                        @Override
+                        public void onComplete(@NonNull Task<Void> task) {
+                            if (task.isSuccessful()) {
+                                Log.e("ok","okkk1");
+                                Toast.makeText(getApplicationContext(), "Account Deleted", Toast.LENGTH_LONG).show();
+                                Intent i = new Intent(getApplicationContext(), SignIn.class);
+                                i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                                startActivity(i);
+                            }
+                        // onCancelled();
+                        }
+                    }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    Log.e("ee"," "+e.getMessage());
+                }
+            });
+    }
+
+    private void alertDialogdelete(){
+        builder.setTitle("Are You Sure?");
+        builder.setMessage("Your All Data Will be Deleted Permanently")
+                .setCancelable(false)
+                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        delacc();
+                    }
+                })
+                .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        dialog.cancel();
+                    }
+                });
+        AlertDialog alert = builder.create();
+        alert.show();
+    }
+
+    private void delacc() {
+        Log.e("ok","okkk"+user.getEmail()+firebaseAuth.getCurrentUser().getUid());
+        FirebaseUser userr = FirebaseAuth.getInstance().getCurrentUser();
+        try {
+            AuthCredential credential = EmailAuthProvider
+                    .getCredential(user.getEmail(), user.getPassword());
+            if (userr != null) {
+                userr.reauthenticate(credential).addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        database.getReference().child("users").child(firebaseAuth.getCurrentUser().getUid()).removeValue();
+                        userr.delete().addOnCompleteListener(new OnCompleteListener < Void > () {
+                            @Override
+                            public void onComplete (@NonNull Task < Void > task) {
+//                                Log.e("ok","okkk2"+user.getEmail()+firebaseAuth.getCurrentUser().getUid());
+
+                                //user deleted successfully
+                                Toast.makeText(getApplicationContext(), "Account Deleted", Toast.LENGTH_LONG).show();
+                                Intent i = new Intent(getApplicationContext(), Register.class);
+                                i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                                startActivity(i);
+                               // startActivity(new Intent(EditProfile.this, Register.class));
+                            }
+                        });
+                    }
+                });
+            }
+        } catch (Exception e) {
+            //error
+        }
+    }
+
 }

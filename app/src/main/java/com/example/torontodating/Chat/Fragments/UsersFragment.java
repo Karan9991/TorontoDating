@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -38,8 +39,8 @@ public class UsersFragment extends Fragment {
     private UserAdapter userAdapter;
     private List<com.example.torontodating.authentication.Model.User> mUsers;
     SharedPreferences sharedPref;
-
     EditText search_users;
+    String gender;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -181,9 +182,9 @@ public class UsersFragment extends Fragment {
 //            }
 //        });
 //    }
-private void readSellers() {
+private void readCurrentUser() {
     final FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
-    DatabaseReference reference = FirebaseDatabase.getInstance().getReference("Seller");
+    DatabaseReference reference = FirebaseDatabase.getInstance().getReference("users");
 
     reference.addValueEventListener(new ValueEventListener() {
         @Override
@@ -192,11 +193,13 @@ private void readSellers() {
                 mUsers.clear();
                 for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
                     com.example.torontodating.authentication.Model.User user = snapshot.getValue(com.example.torontodating.authentication.Model.User.class);
-                    //Log.i("TTTTTTTT", "vv"+user.getId());
-//                        if (!user.getId().equals(firebaseUser.getUid())) {
-//                            mUsers.add(user);
-//                        }
-                    mUsers.add(user);
+                    Log.i("CurrentUser", "vv"+user.getGender());
+                        if (user.getId().equals(firebaseUser.getUid())) {
+                            gender = user.getGender();
+
+                            // mUsers.add(user);
+                        }
+                   // mUsers.add(user);
 
                 }
 
@@ -212,6 +215,7 @@ private void readSellers() {
     });
 }
     private void readCustomers() {
+        readCurrentUser();
         final FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
         DatabaseReference reference = FirebaseDatabase.getInstance().getReference("users");
 
@@ -223,10 +227,18 @@ private void readSellers() {
                     for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
                         com.example.torontodating.authentication.Model.User user = snapshot.getValue(com.example.torontodating.authentication.Model.User.class);
                         //Log.i("TTTTTTTT", "vv"+user.getId());
-//                        if (!user.getId().equals(firebaseUser.getUid())) {
-//                            mUsers.add(user);
-//                        }
-                        mUsers.add(user);
+                        if (user!=null&& firebaseUser!=null&& gender!=null) {
+                            if (!user.getId().equals(firebaseUser.getUid()) && gender.equals("Male")) {
+                                if (user.getGender().equals("Female")) {
+                                    mUsers.add(user);
+                                }
+                            } else if (!user.getId().equals(firebaseUser.getUid()) && gender.equals("Female")) {
+                                if (user.getGender().equals("Male")) {
+                                    mUsers.add(user);
+                                }
+                            }
+                        }
+                       // mUsers.add(user);
 
                     }
 

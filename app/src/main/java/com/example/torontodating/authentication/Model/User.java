@@ -21,6 +21,7 @@ public class User {
     public String username;
     public String search;
     public String age;
+    public String gender;
 
     public User() {
         // Default constructor required for calls to DataSnapshot.getValue(User.class)
@@ -89,6 +90,19 @@ public class User {
         this.id = id;
         this.username = email;
         this.search = search;
+    }
+
+    public User(String name, String email, String password, String imageURL, String status, String id, String username, String search, String age, String gender) {
+        this.name = name;
+        this.email = email;
+        this.password = password;
+        this.imageURL = imageURL;
+        this.status = status;
+        this.id = id;
+        this.username = username;
+        this.search = search;
+        this.age = age;
+        this.gender = gender;
     }
 
     public String getUsername() {
@@ -187,6 +201,14 @@ public class User {
         this.age = age;
     }
 
+    public String getGender() {
+        return gender;
+    }
+
+    public void setGender(String gender) {
+        this.gender = gender;
+    }
+
     @Exclude
     public Map<String, Object> toMap() {
         HashMap<String, Object> result = new HashMap<>();
@@ -199,6 +221,7 @@ public class User {
         result.put("status", "offline");
         result.put("search", email);
         result.put("password", password);
+        result.put("gender", gender);
         return result;
     }
 }

@@ -10,6 +10,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -26,6 +27,8 @@ import androidx.viewpager.widget.ViewPager;
 import com.bumptech.glide.Glide;
 import com.example.torontodating.EditProfile;
 import com.example.torontodating.authentication.SignIn;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.tabs.TabLayout;
 import com.google.firebase.auth.FirebaseAuth;
@@ -64,6 +67,7 @@ public class MainActivity extends AppCompatActivity {
     private NavigationView nv;
     AlertDialog.Builder builder2;
     boolean logout;
+    User user;
 
 
     @Override
@@ -125,16 +129,18 @@ public void Customerr(){
     reference.addValueEventListener(new ValueEventListener() {
         @Override
         public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-            User user = dataSnapshot.getValue(User.class);
-            name.setText(user.getName());
-            age.setText(user.getAge());
+             user = dataSnapshot.getValue(User.class);
+             if (user!=null) {
+                 name.setText(user.getName());
+                 age.setText(user.getAge());
 
-            if (user.getImageURL().equals("default")){
-                profile_image.setImageResource(R.mipmap.ic_launcher);
-            } else {
-                //change this
-                Glide.with(getApplicationContext()).load(user.getImageURL()).into(profile_image);
-            }
+                 if (user.getImageURL().equals("default")) {
+                     profile_image.setImageResource(R.mipmap.ic_launcher);
+                 } else {
+                     //change this
+                     Glide.with(getApplicationContext()).load(user.getImageURL()).into(profile_image);
+                 }
+             }
         }
 
         @Override
@@ -186,10 +192,12 @@ public boolean onOptionsItemSelected(MenuItem item) {
         }
     }
 
-    private void status(String status){
+    private void status(String status) {
+        if (user != null) {
             HashMap<String, Object> map = new HashMap<>();
             map.put("status", status);
             reference.updateChildren(map);
+        }
     }
 
     @Override
@@ -208,7 +216,7 @@ public boolean onOptionsItemSelected(MenuItem item) {
     }
 
     private void init(){
-        getSupportActionBar().setTitle("Brampton Tiffins");
+        getSupportActionBar().setTitle("Toronto Dating");
 
         dl = (DrawerLayout)findViewById(R.id.activity_main);
         t = new ActionBarDrawerToggle(this, dl,R.string.descSeller, R.string.addressSeller);
