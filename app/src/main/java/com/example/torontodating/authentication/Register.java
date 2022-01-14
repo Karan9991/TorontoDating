@@ -29,6 +29,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.multidex.MultiDex;
 
+import com.example.torontodating.CheckConnection;
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -148,8 +149,12 @@ AuthenticationPresenterLayer registerPresenterLayer;
             @Override
             public void onClick(View view) {
             if (validations() && setSpinnerError(spinner, "Please select Gender")) {
-                UploadImageFileToFirebaseStorage(etName.getText().toString(),etAge.getText().toString(),etEmail.getText().toString(),etPassword.getText().toString());
+                if (CheckConnection.getInstance().isNetworkAvailable(Register.this)) {
+                    UploadImageFileToFirebaseStorage(etName.getText().toString(), etAge.getText().toString(), etEmail.getText().toString(), etPassword.getText().toString());
+                } else {
+                    Toast.makeText(getApplicationContext(), "No Internet!", Toast.LENGTH_SHORT).show();
                 }
+            }
             }
 });
         tvsignin.setOnClickListener(new View.OnClickListener() {

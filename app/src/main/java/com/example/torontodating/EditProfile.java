@@ -24,6 +24,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.bumptech.glide.Glide;
 import com.example.torontodating.Chat.MainActivity;
+import com.example.torontodating.authentication.ForgotPassword;
 import com.example.torontodating.authentication.Model.User;
 import com.example.torontodating.authentication.Register;
 import com.example.torontodating.authentication.SignIn;
@@ -127,7 +128,11 @@ public class EditProfile extends AppCompatActivity implements ValueEventListener
             @Override
             public void onClick(View view) {
                 if (validations()) {
-                    UploadImageFileToFirebaseStorage(etDesc.getText().toString(), etPrice.getText().toString());
+                    if (CheckConnection.getInstance().isNetworkAvailable(EditProfile.this)) {
+                        UploadImageFileToFirebaseStorage(etDesc.getText().toString(), etPrice.getText().toString());
+                    }else {
+                        Toast.makeText(getApplicationContext(),"No Internet!", Toast.LENGTH_SHORT).show();
+                    }
                 }
             }
         });
@@ -135,7 +140,11 @@ public class EditProfile extends AppCompatActivity implements ValueEventListener
         btnDeleteAccount.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                alertDialogdelete();
+                if (CheckConnection.getInstance().isNetworkAvailable(EditProfile.this)) {
+                    alertDialogdelete();
+                }else {
+                    Toast.makeText(getApplicationContext(),"No Internet!", Toast.LENGTH_SHORT).show();
+                }
             }
         });
     }

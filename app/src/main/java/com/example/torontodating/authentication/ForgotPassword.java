@@ -7,6 +7,7 @@ import android.util.Patterns;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -14,6 +15,7 @@ import androidx.databinding.DataBindingUtil;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
 
+import com.example.torontodating.CheckConnection;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
@@ -74,7 +76,11 @@ AuthenticationPresenterLayer presenterLayer;
                 else {
                     binding.etForgotPassword.setError(null);
                     binding.tvForgotPassword.setText(loginUser.getStrEmailAddress());
-                    sendPasswordLink();
+                    if (CheckConnection.getInstance().isNetworkAvailable(ForgotPassword.this)) {
+                        sendPasswordLink();
+                    }else {
+                        Toast.makeText(getApplicationContext(),"No Internet!", Toast.LENGTH_SHORT).show();
+                    }
                 }
             }
         });

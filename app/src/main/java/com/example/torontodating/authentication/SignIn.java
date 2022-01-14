@@ -3,6 +3,7 @@ package com.example.torontodating.authentication;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Paint;
 import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -18,6 +19,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.torontodating.CheckConnection;
 import com.example.torontodating.MainActivity;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -81,26 +83,31 @@ public class SignIn extends AppCompatActivity implements Validate {
                 btnLogin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (validations()){
-                    authenticationPresenterLayer.progressbarShow(progressBar);
-                    firebaseAuth.signInWithEmailAndPassword(etEmailLogin.getText().toString(), etPasswordLogin.getText().toString()).addOnCompleteListener(SignIn.this, new OnCompleteListener<AuthResult>() {
-                        @Override
-                        public void onComplete(@NonNull Task<AuthResult> task) {
-                            authenticationPresenterLayer.progressbarHide(progressBar);
-                            if (task.isSuccessful()) {
-                                if (firebaseAuth.getCurrentUser().isEmailVerified()){
-                                    Log.e("User","Authenticated");
-                               startActivity(new Intent(SignIn.this, com.example.torontodating.Chat.MainActivity.class));
-                               finish();
-                                }else {
-                                    authenticationPresenterLayer.toast(getApplicationContext(), "Please verify your E-Mail address");
+                if (validations()) {
+                    if (CheckConnection.getInstance().isNetworkAvailable(SignIn.this)) {
+                        authenticationPresenterLayer.progressbarShow(progressBar);
+                        firebaseAuth.signInWithEmailAndPassword(etEmailLogin.getText().toString(), etPasswordLogin.getText().toString()).addOnCompleteListener(SignIn.this, new OnCompleteListener<AuthResult>() {
+                            @Override
+                            public void onComplete(@NonNull Task<AuthResult> task) {
+                                authenticationPresenterLayer.progressbarHide(progressBar);
+                                if (task.isSuccessful()) {
+                                    if (firebaseAuth.getCurrentUser().isEmailVerified()) {
+                                        Log.e("User", "Authenticated");
+                                        lock();
+                                        startActivity(new Intent(SignIn.this, com.example.torontodating.Chat.MainActivity.class));
+                                        finish();
+                                    } else {
+                                        authenticationPresenterLayer.toast(getApplicationContext(), "Please verify your E-Mail address");
 
+                                    }
+                                } else {
+                                    authenticationPresenterLayer.toast(getApplicationContext(), "SignIn Failed " + task.getException().getMessage());
                                 }
-                            } else {
-                                authenticationPresenterLayer.toast(getApplicationContext(), "SignIn Failed " + task.getException().getMessage());
                             }
-                        }
-                    });
+                        });
+                    } else {
+                        authenticationPresenterLayer.toast(getApplicationContext(), "No Internet!");
+                    }
                 }
             }
         });
@@ -120,7 +127,6 @@ public class SignIn extends AppCompatActivity implements Validate {
         });
     }
 
-
     @Override
     public boolean validations() {
         if (TextUtils.isEmpty(etEmailLogin.getText())) {
@@ -139,5 +145,11 @@ public class SignIn extends AppCompatActivity implements Validate {
             isValid = true;
         }
         return isValid;
+    }
+
+    private void lock(){
+        btnLogin.setBackground(getResources().getDrawable(R.drawable.lock_signin_btn));
+        btnLogin.setPaintFlags(Paint.STRIKE_THRU_TEXT_FLAG);
+        btnLogin.setTextSize(20);
     }
 }

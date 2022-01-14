@@ -13,6 +13,7 @@
         <entry key="app/src/main/res/drawable-v24/login_button_bk.xml" value="0.20462962962962963" />
         <entry key="app/src/main/res/drawable-v24/shapeemail.xml" value="0.21481481481481482" />
         <entry key="app/src/main/res/drawable/ic_launcher_background.xml" value="0.24074074074074073" />
+        <entry key="app/src/main/res/drawable/lock_signin_btn.xml" value="0.2630208333333333" />
         <entry key="app/src/main/res/layout/activity_forgot_password.xml" value="0.14311043566362716" />
         <entry key="app/src/main/res/layout/activity_login.xml" value="0.22150139017608897" />
         <entry key="app/src/main/res/layout/activity_main.xml" value="0.14336372847011145" />

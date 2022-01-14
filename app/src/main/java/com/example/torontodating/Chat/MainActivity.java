@@ -25,6 +25,7 @@ import androidx.fragment.app.FragmentPagerAdapter;
 import androidx.viewpager.widget.ViewPager;
 
 import com.bumptech.glide.Glide;
+import com.example.torontodating.CheckConnection;
 import com.example.torontodating.EditProfile;
 import com.example.torontodating.authentication.SignIn;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -248,7 +249,11 @@ public boolean onOptionsItemSelected(MenuItem item) {
                         break;
 
                     case R.id.mycart:
-                        logout();
+                        if (CheckConnection.getInstance().isNetworkAvailable(MainActivity.this)) {
+                            logout();
+                        }else {
+                            Toast.makeText(getApplicationContext(),"No Internet!", Toast.LENGTH_SHORT).show();
+                        }
                         break;
                     default:
                         return true;
