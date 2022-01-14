@@ -27,6 +27,7 @@ import androidx.viewpager.widget.ViewPager;
 import com.bumptech.glide.Glide;
 import com.example.torontodating.CheckConnection;
 import com.example.torontodating.EditProfile;
+import com.example.torontodating.authentication.ForgotPassword;
 import com.example.torontodating.authentication.SignIn;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -74,54 +75,59 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_mainn);
-
-        builder2 = new AlertDialog.Builder(this);
-        init();
-        logout = false;
-        sharedPref = getSharedPreferences("UserType", Context.MODE_PRIVATE);
-        firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
+        if (CheckConnection.getInstance().isNetworkAvailable(MainActivity.this)) {
+            setContentView(R.layout.activity_mainn);
+            builder2 = new AlertDialog.Builder(this);
+            init();
+            logout = false;
+            sharedPref = getSharedPreferences("UserType", Context.MODE_PRIVATE);
+            firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
 
             Customerr();
 
-        final TabLayout tabLayout = findViewById(R.id.tab_layout);
-        final ViewPager viewPager = findViewById(R.id.view_pager);
+            final TabLayout tabLayout = findViewById(R.id.tab_layout);
+            final ViewPager viewPager = findViewById(R.id.view_pager);
 
 
-        reference = FirebaseDatabase.getInstance().getReference("Chats");
-        reference.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                ViewPagerAdapter viewPagerAdapter = new ViewPagerAdapter(getSupportFragmentManager());
-                int unread = 0;
-                for (DataSnapshot snapshot : dataSnapshot.getChildren()){
-                    Chat chat = snapshot.getValue(Chat.class);
-                    if (chat.getReceiver().equals(firebaseUser.getUid()) && !chat.isIsseen()){
-                        unread++;
+            reference = FirebaseDatabase.getInstance().getReference("Chats");
+            reference.addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    ViewPagerAdapter viewPagerAdapter = new ViewPagerAdapter(getSupportFragmentManager());
+                    int unread = 0;
+                    for (DataSnapshot snapshot : dataSnapshot.getChildren()){
+                        Chat chat = snapshot.getValue(Chat.class);
+                        if (chat.getReceiver().equals(firebaseUser.getUid()) && !chat.isIsseen()){
+                            unread++;
+                        }
                     }
+
+                    if (unread == 0){
+                        viewPagerAdapter.addFragment(new ChatsFragment(), "Chat");
+                    } else {
+                        viewPagerAdapter.addFragment(new ChatsFragment(), "("+unread+") Chat");
+                    }
+                    viewPagerAdapter.addFragment(new UsersFragment(), "Date");
+
+                    viewPager.setAdapter(viewPagerAdapter);
+
+                    tabLayout.setupWithViewPager(viewPager);
+                    viewPager.setCurrentItem(1);
+                    tabLayout.setupWithViewPager(viewPager);
+
                 }
 
-                if (unread == 0){
-                    viewPagerAdapter.addFragment(new ChatsFragment(), "Chat");
-                } else {
-                    viewPagerAdapter.addFragment(new ChatsFragment(), "("+unread+") Chat");
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
+
                 }
-                 viewPagerAdapter.addFragment(new UsersFragment(), "Date");
+            });
+            reference= FirebaseDatabase.getInstance().getReference("users").child(firebaseAuth.getCurrentUser().getUid());
 
-                viewPager.setAdapter(viewPagerAdapter);
+        }else {
+            Toast.makeText(getApplicationContext(),"No Internet!", Toast.LENGTH_LONG).show();
+        }
 
-                tabLayout.setupWithViewPager(viewPager);
-                viewPager.setCurrentItem(1);
-                tabLayout.setupWithViewPager(viewPager);
-
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-
-            }
-        });
-        reference= FirebaseDatabase.getInstance().getReference("users").child(firebaseAuth.getCurrentUser().getUid());
 
     }
 

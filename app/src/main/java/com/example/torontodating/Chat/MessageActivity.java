@@ -17,6 +17,8 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.torontodating.CheckConnection;
+import com.example.torontodating.authentication.ForgotPassword;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -116,11 +118,15 @@ public class MessageActivity extends AppCompatActivity {
                 notify = true;
                 String msg = text_send.getText().toString();
                 if (!msg.equals("")){
-                    sendMessage(fuser.getUid(), userid, msg);
+                    if (CheckConnection.getInstance().isNetworkAvailable(MessageActivity.this)) {
+                        sendMessage(fuser.getUid(), userid, msg);
+                        text_send.setText("");
+                    }else {
+                        Toast.makeText(getApplicationContext(),"No Internet!", Toast.LENGTH_SHORT).show();
+                    }
                 } else {
                     Toast.makeText(MessageActivity.this, "You can't send empty message", Toast.LENGTH_SHORT).show();
                 }
-                text_send.setText("");
             }
         });
        // if (sharedPref.getString("UT",null).equals("Seller")){
