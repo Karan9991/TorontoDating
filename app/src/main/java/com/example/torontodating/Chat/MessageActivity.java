@@ -1,10 +1,13 @@
 package com.example.torontodating.Chat;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -12,13 +15,17 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.torontodating.CheckConnection;
+import com.example.torontodating.EditProfile;
 import com.example.torontodating.authentication.ForgotPassword;
+import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -51,30 +58,22 @@ public class MessageActivity extends AppCompatActivity {
 
     CircleImageView profile_image;
     TextView username;
-
     FirebaseUser fuser;
     DatabaseReference reference;
-
     ImageButton btn_send;
     EditText text_send;
-
     MessageAdapter messageAdapter;
     List<Chat> mchat;
-
     RecyclerView recyclerView;
-
     Intent intent;
-
     ValueEventListener seenListener;
-
     String userid;
-
     APIService apiService;
-
     boolean notify = false;
     SharedPreferences sharedPref;
+    com.example.torontodating.authentication.Model.User user;
     FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
-
+    String blockedUser, someoneBlocked = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -115,12 +114,22 @@ public class MessageActivity extends AppCompatActivity {
         btn_send.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                getBlockedUser();
                 notify = true;
                 String msg = text_send.getText().toString();
                 if (!msg.equals("")){
                     if (CheckConnection.getInstance().isNetworkAvailable(MessageActivity.this)) {
-                        sendMessage(fuser.getUid(), userid, msg);
-                        text_send.setText("");
+                        if (blockedUser != null) {
+                            if (!blockedUser.equals(user.getId())) {
+                                    sendMessage(fuser.getUid(), userid, msg);
+                                    text_send.setText("");
+                            } else {
+                                Toast.makeText(getApplicationContext(), "You blocked this user", Toast.LENGTH_LONG).show();
+                            }
+                        }else {
+                                sendMessage(fuser.getUid(), userid, msg);
+                                text_send.setText("");
+                            }
                     }else {
                         Toast.makeText(getApplicationContext(),"No Internet!", Toast.LENGTH_SHORT).show();
                     }
@@ -159,38 +168,62 @@ public class MessageActivity extends AppCompatActivity {
 //        });
 
         seenMessage(userid);
+
+        getBlockedUser();
+      // getSomoneBlockedYou();
+
+        Log.e(" vvvb"," "+someoneBlocked+fuser.getUid());
+//        if(someoneBlocked != null) {
+//            if (someoneBlocked.equals(fuser.getUid())) {
+//                text_send.setEnabled(false);
+//                btn_send.setEnabled(false);
+//            }
+//        }
+
     }
-public void Sellerr(){
-    reference = FirebaseDatabase.getInstance().getReference("Seller").child(userid);
-    reference.addValueEventListener(new ValueEventListener() {
-        @Override
-        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-            com.example.torontodating.authentication.Model.User user = dataSnapshot.getValue(com.example.torontodating.authentication.Model.User.class);
-            username.setText(user.getUsername());
-            if (user.getImageURL().equals("default")){
-                profile_image.setImageResource(R.mipmap.ic_launcher);
-            } else {
-                //and this
-             //   Glide.with(getApplicationContext()).load(user.getImageURL()).into(profile_image);
-                Picasso.with(getApplicationContext()).
-                        load(user.getImageURL()).into(profile_image);
-            }
-
-            readMesagges(fuser.getUid(), userid, user.getImageURL());
-        }
-
-        @Override
-        public void onCancelled(@NonNull DatabaseError databaseError) {
-
-        }
-    });
-}
+//public void Sellerr(){
+//                    if (!msg.equals("")) {
+//                        Toast.makeText(MessageActivity.this, "You can't send empty message", Toast.LENGTH_SHORT).show();
+//                    }
+//                    else if (CheckConnection.getInstance().isNetworkAvailable(MessageActivity.this)) {
+//                        Toast.makeText(getApplicationContext(),"No Internet!", Toast.LENGTH_SHORT).show();
+//                    }
+//                        else if (blockedUser != null) {
+//                    }
+//                        else if (!blockedUser.equals(user.getId())) {
+//                    }
+//                    else if (someoneBlocked.equals(fuser.getUid())) {
+//                        sendMessage(fuser.getUid(), userid, msg);
+//                        text_send.setText("");
+//                    }
+//    else if (someoneBlocked != null && someoneBlocked.equals(fuser.getUid())) {
+//
+//    }else {
+//                                    Toast.makeText(getApplicationContext(), "This user blocked you", Toast.LENGTH_LONG).show();
+//                                }
+//                            } else {
+//                                Toast.makeText(getApplicationContext(), "You blocked this user", Toast.LENGTH_LONG).show();
+//                            }
+//                        }else {
+//                                z
+//                            }else {
+//                                Toast.makeText(getApplicationContext(), "This user blocked you!", Toast.LENGTH_LONG).show();
+//                            }
+//                            sendMessage(fuser.getUid(), userid, msg);
+//                            text_send.setText("");
+//                        }
+//                    }else {
+//                    }
+//                } else {
+//                }
+//}
 public void Customerr(){
     reference = FirebaseDatabase.getInstance().getReference("users").child(userid);
     reference.addValueEventListener(new ValueEventListener() {
         @Override
         public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-            com.example.torontodating.authentication.Model.User user = dataSnapshot.getValue(com.example.torontodating.authentication.Model.User.class);
+            user = dataSnapshot.getValue(com.example.torontodating.authentication.Model.User.class);
+            getSomoneBlockedYou();
             username.setText(user.getName());
             if (user.getImageURL().equals("default")){
                 profile_image.setImageResource(R.mipmap.ic_launcher);
@@ -426,5 +459,108 @@ public void Customerr(){
         reference.removeEventListener(seenListener);
         status("offline");
         currentUser("none");
+    }
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.block_menu,menu);
+        MenuItem item = menu.findItem(R.id.block);
+        if (blockedUser != null) {
+            if (blockedUser.equals(user.getId())) {
+                item.setTitle("Unblock");
+            } else {
+                item.setTitle("Block");
+            }
+        }else {
+            item.setTitle("Block");
+        }
+        return true;
+    }
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.block:
+                Log.e("Block","User has been blocked!");
+                if (blockedUser != null) {
+                    if (blockedUser.equals(user.getId())) {
+                        unBlock();
+                        item.setTitle("Block");
+                    } else {
+                        block();
+                        item.setTitle("UnBlock");
+                    }
+                }else {
+                    block();
+                    item.setTitle("UnBlock");
+                }
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    private void block(){
+        DatabaseReference reference = FirebaseDatabase.getInstance().getReference();
+        reference.child("users").child(fuser.getUid()).child("block").child("to").child(user.getId()).setValue(user.getId());
+        reference.child("users").child(user.getId()).child("block").child("from").child(fuser.getUid()).setValue(fuser.getUid());
+        Toast.makeText(getApplicationContext(),"Blocked",Toast.LENGTH_LONG).show();
+        getBlockedUser();
+    }
+    private void unBlock(){
+        DatabaseReference reference = FirebaseDatabase.getInstance().getReference();
+        reference.child("users").child(fuser.getUid()).child("block").child("to").child(user.getId()).removeValue();
+        reference.child("users").child(user.getId()).child("block").child("from").child(fuser.getUid()).removeValue();
+        Toast.makeText(getApplicationContext(),"UnBlocked",Toast.LENGTH_LONG).show();
+        getBlockedUser();
+        blockedUser = null;
+    }
+    private String getBlockedUser(){
+        reference = FirebaseDatabase.getInstance().getReference("users").child(fuser.getUid()).child("block").child("to");
+        reference.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                for (DataSnapshot snapshot : dataSnapshot.getChildren()){
+                    Log.e("BlockedUserData"," "+snapshot.getValue());
+                    if (snapshot.getValue().equals(user.getId())){
+                         blockedUser = snapshot.getValue().toString();
+                        Log.e("id"," "+snapshot.getValue());
+                        Log.e("String"," "+blockedUser);
+                    }else {
+                        Log.e("id","no data");
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+    return blockedUser;
+    }
+    private String getSomoneBlockedYou(){
+        reference = FirebaseDatabase.getInstance().getReference("users").child(user.getId()).child("block").child("to");
+        reference.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                for (DataSnapshot snapshot : dataSnapshot.getChildren()){
+                    Log.e("SomeoneBlockedUserData"," "+snapshot.getValue());
+                    if (snapshot.getValue().equals(fuser.getUid())){
+                        someoneBlocked = snapshot.getValue().toString();
+                        Log.e("id"," "+snapshot.getValue());
+                        Log.e("String"," "+someoneBlocked);
+                        text_send.setEnabled(false);
+                        btn_send.setEnabled(false);
+                        Toast.makeText(getApplicationContext(),"This user Blocked you",Toast.LENGTH_LONG).show();
+                    }else {
+                        Log.e("id","no data");
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+        return someoneBlocked;
     }
 }
